@@ -6,12 +6,16 @@ from src.utilities.sessions import SessionManager
 import time
 from concurrent.futures import ThreadPoolExecutor
 
+BUILDER_CONFIG_TTL = 60  # seconds before refreshing builder configs from DB
+
 class LeadProcessor:
     def __init__(self, db_config: dict = None, run_once: bool = False, max_workers: int = 5):
         self.run_once = run_once
         self.db = DatabaseUtilities(db_config) if db_config else None
         self.session_manager = SessionManager(self.db) if self.db else None
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
+        self._builder_configs_cache = {}
+        self._configs_cached_at = 0.0
 
     def start(self):
         print(f"[Processor] Starting Lead Processor worker (Parallel mode, max_workers={self.executor._max_workers})...")
@@ -29,6 +33,22 @@ class LeadProcessor:
             
             time.sleep(2) # Poll every 2 seconds
 
+    def _get_builder_configs(self) -> dict:
+        """Returns cached builder configs, refreshing from DB if TTL has expired."""
+        if not self.db:
+            return {}
+        now = time.time()
+        if now - self._configs_cached_at > BUILDER_CONFIG_TTL or not self._builder_configs_cache:
+            try:
+                fresh = self.db.get_active_builder_configs()
+                if fresh:
+                    self._builder_configs_cache = fresh
+                    self._configs_cached_at = now
+                    print("[Processor] Builder configs refreshed from database.")
+            except Exception as e:
+                print(f"[Processor] DB Config Fetch Error: {e}. Using last known config.")
+        return self._builder_configs_cache
+
     def process_lead(self, lead):
         print(f"\n[Processor] Found lead {lead.leadsource_id}. Matching to builder...")
         
@@ -36,16 +56,8 @@ class LeadProcessor:
         if self.db:
             self.db.update_lead_status(str(lead.lead_id), "PROCESSING")
  
-        # 1. Fetch builder configs (Prefer DB, fallback to empty)
-        builder_configs = {}
-        if self.db:
-            try:
-                db_configs = self.db.get_active_builder_configs()
-                if db_configs:
-                    builder_configs = db_configs
-                    print("[Processor] Using dynamic builder configurations from database.")
-            except Exception as e:
-                print(f"[Processor] DB Config Fetch Error: {e}. Falling back to static config.")
+        # 1. Get builder configs from cache (refresh every 60s)
+        builder_configs = self._get_builder_configs()
 
         # 2. Find ALL eligible builders
         eligible_builders = LeadDistributionService.get_eligible_builders(lead, builder_configs)

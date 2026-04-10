@@ -157,12 +157,12 @@ class DatabaseUtilities:
         finally:
             self.release(conn)
 
-    def get_received_leads(self) -> List[Lead]:
+    def get_received_leads(self, batch_size: int = 50) -> List[Lead]:
         """Fetches leads with status='RECEIVED' and returns them as Lead objects."""
         conn = self.connect()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT * FROM leads WHERE status = 'RECEIVED' ORDER BY created_at ASC")
+                cur.execute("SELECT * FROM leads WHERE status = 'RECEIVED' ORDER BY created_at ASC LIMIT %s", (batch_size,))
                 rows = cur.fetchall()
                 
                 leads = []
