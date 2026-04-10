@@ -1,5 +1,4 @@
 from src.core.queue_manager import lead_queue
-from src.core.distribution import LeadDistributionService
 from config.builders import BUILDER_CLASS_MAP
 from src.utilities.db.utilities import DatabaseUtilities
 from src.utilities.sessions import SessionManager
@@ -36,19 +35,20 @@ class LeadProcessor:
         if self.db:
             self.db.update_lead_status(str(lead.lead_id), "PROCESSING")
  
-        # 1. Fetch builder configs (Prefer DB, fallback to empty)
+        # 1. Fetch MATCHING builder configs dynamically from DB
         builder_configs = {}
         if self.db:
             try:
-                db_configs = self.db.get_active_builder_configs()
-                if db_configs:
-                    builder_configs = db_configs
-                    print("[Processor] Using dynamic builder configurations from database.")
+                builder_configs = self.db.get_matching_builder_configs(lead)
+                if builder_configs:
+                    print(f"[Processor] Found {len(builder_configs)} matching builders in database.")
+                else:
+                    print(f"[Processor] No matching builders found in database for lead {lead.leadsource_id}.")
             except Exception as e:
-                print(f"[Processor] DB Config Fetch Error: {e}. Falling back to static config.")
+                print(f"[Processor] DB Match Query Error: {e}")
 
-        # 2. Find ALL eligible builders
-        eligible_builders = LeadDistributionService.get_eligible_builders(lead, builder_configs)
+        # 2. Get eligible builders (Keys from the config dictionary)
+        eligible_builders = list(builder_configs.keys())
         
         if not eligible_builders:
             print(f"[Processor] ERROR: No matching builder found for lead {lead.lead_id}")

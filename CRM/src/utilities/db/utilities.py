@@ -100,15 +100,26 @@ class DatabaseUtilities:
         finally:
             self.release(conn)
 
-    def get_active_builder_configs(self) -> Dict[str, Any]:
+    def get_matching_builder_configs(self, lead: Lead) -> Dict[str, Any]:
         """
-        Fetch all active builders, their projects, and credentials.
-        Returns a dictionary keyed by builder name (slugified).
+        matches leads to builders/projects using SQL queries.
+        Matches based on location and property type (Villa, Plot, Apartment).
         """
+        # Safety Guard: If no search criteria are provided, return empty to prevent mass-distribution
+        if not any([lead.location, lead.property_type, lead.project_type, lead.project_name]):
+            print(f"[DB] Safety Guard: Lead {lead.leadsource_id} has no location, type, or project name. Skipping matching.")
+            return {}
+
         conn = self.connect()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("""
+                # Prepare lead search terms
+                location = lead.location if lead.location else ""
+                prop_type = lead.property_type if lead.property_type else ""
+                proj_type = lead.project_type if lead.project_type else ""
+                proj_name = lead.project_name if lead.project_name else ""
+                
+                sql = """
                     SELECT 
                         b.builder_id,
                         b.builder_name,
@@ -129,15 +140,35 @@ class DatabaseUtilities:
                     WHERE b.is_active = TRUE 
                       AND bp.is_active = TRUE 
                       AND bcc.is_active = TRUE
-                """)
+                      AND (
+                        
+                          bp.location = '*' OR 
+                          bp.location ILIKE %s OR 
+                          %s ILIKE bp.location OR
+                          bp.location IS NULL
+                      )
+                      AND (
+                         
+                          bp.property_type = '*' OR
+                          bp.property_type ILIKE %s OR 
+                          bp.property_type ILIKE %s OR
+                          bp.project_name ILIKE %s OR 
+                          bp.property_type IS NULL
+                      )
+                """
+                
+                cur.execute(sql, (
+                    f"%{location}%", location, 
+                    f"%{prop_type}%", f"%{proj_type}%", f"%{proj_name}%"
+                ))
+                
                 rows = cur.fetchall()
                 
                 configs = {}
                 for row in rows:
-                    # Create a key for the config
-                    key = f"{row['crm_type'].upper()}_{row['builder_name'].upper().replace(' ', '_')}"
+                    # Create a unique key for each project implementation
+                    key = f"{row['crm_type'].upper()}_{row['builder_name'].upper().replace(' ', '_')}_{row['project_name'].upper().replace(' ', '_')}"
                     
-                    # Merge extra_config into the flat row dictionary
                     config = dict(row)
                     if row['extra_config']:
                         config.update(row['extra_config'])
