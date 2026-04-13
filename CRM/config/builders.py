@@ -17,6 +17,7 @@ from src.builders.urbanise_builder import UrbaniseBuilder
 from src.builders.elephantine_builder import ElephantineBuilder
 from src.builders.adityaram_builder import AdityaramBuilder
 from src.builders.vgn360_builder import VGN360Builder
+from src.builders.marutham_builder import MaruthamBuilder
 
 # ── New Builders (Rails/Sell.do CSRF + fetch) ─────────────────────
 from src.builders.gt_bharathi_builder import GTBharathiBuilder
