@@ -133,6 +133,7 @@ class DatabaseUtilities:
                         bcc.crm_url as submit_url,
                         bcc.username,
                         bcc.credential_id,
+                        bcc.delivery_target,
                         bcc.extra_config
                     FROM builders b
                     JOIN builder_projects bp ON b.builder_id = bp.builder_id

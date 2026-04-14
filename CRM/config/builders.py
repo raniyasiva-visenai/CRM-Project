@@ -20,6 +20,11 @@ from src.builders.vgn360_builder import VGN360Builder
 from src.builders.nutech_builder import NutechBuilder
 from src.builders.marutham_builder import MaruthamBuilder
 from src.builders.tvh_builder import TVHBuilder
+from src.builders.bscpl_builder import BSCPLBuilder
+from src.builders.iyra_builder import IYRABuilder
+from src.builders.urbando_builder import UrbandoBuilder
+from src.builders.mail_builder import MailBuilder
+from src.builders.whatsapp_builder import WhatsAppBuilder
 
 # ── New Builders (Rails/Sell.do CSRF + fetch) ─────────────────────
 from src.builders.gt_bharathi_builder import GTBharathiBuilder
@@ -75,6 +80,11 @@ BUILDER_CLASS_MAP = {
     # ── Custom / Marutham ──────────────────────────────────────────
     "marutham":          MaruthamBuilder,
     "tvh":               TVHBuilder,
+    "bscpl":             BSCPLBuilder,
+    "iyra":              IYRABuilder,
+    "urbando":           UrbandoBuilder,
+    "mail":              MailBuilder,
+    "whatsapp":          WhatsAppBuilder,
 
     # ── API-based ──────────────────────────────────────────────────
     "bbcl":              BBCLBuilder,

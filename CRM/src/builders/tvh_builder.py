@@ -15,15 +15,15 @@ class TVHBuilder(APIBase):
         """
         # Mapping Lead attributes to form fields
         payload = {
-            "salutation": "Mr", # Default to Mr as seen in screenshot
+            "salutation": "Mr",
             "name": f"{lead.first_name} {lead.last_name or ''}".strip(),
             "svleadphone": lead.mobile,
             "mail": lead.email or "",
-            "project_lists": lead.project_name or "TVH QUADRANT", # Fallback to screenshot value
-            "cpname": "Marutham", # Standard CP Name from screenshot
-            "cpfirmname": "Marutham prop", # Standard CP Firm Name from screenshot
-            "cpphone": "", # Optional
-            "cpemail": "", # Optional
+            "project_lists": lead.project_name or "TVH QUADRANT",
+            "cpname": "Marutham",
+            "cpfirmname": "Marutham prop",
+            "cpphone": "",
+            "cpemail": "",
             "remarks": lead.remarks or "Feedback",
         }
         
