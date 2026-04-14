@@ -1,0 +1,91 @@
+:root {
+  --primary: #1e293b;
+  --accent: #c5a059;
+  /* Classic Gold */
+  --bg-main: #fcfcfc;
+  --sidebar-bg: #111827;
+  --card-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+  --border-light: rgba(0, 0, 0, 0.04);
+  --sidebar-width: 260px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  background-color: var(--bg-main);
+  color: #334155;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure the root container takes full view height but doesn't block scroll */
+#root {
+  min-height: 100vh;
+  display: flex;
+}
+
+.scroll-container {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Classic scrollbar */
+.scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+.premium-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card:hover {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ── Responsive: Tablet & Mobile ──────────────────────── */
+
+/* Tablet: hide sidebar text, shrink width */
+@media (max-width: 900px) {
+  .scroll-container {
+    height: 100dvh;
+  }
+}
+
+/* Mobile: full-width content, no overflow issues */
+@media (max-width: 600px) {
+  .premium-card:hover {
+    transform: none;
+  }
+}
+
+/* Table responsive wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
