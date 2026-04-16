@@ -20,7 +20,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'CRM')))
 from config.db import DB_CONFIG
 
-app = FastAPI(title="Iris CRM Admin API")
+app = FastAPI(title="CRM Admin API")
 
 # Enable CORS for React
 app.add_middleware(
@@ -107,15 +107,15 @@ def get_leads(limit: int = 50):
     cur.execute("""
         SELECT 
             l.*,
-            (SELECT string_agg(b.builder_name, ', ') 
+            (SELECT string_agg(DISTINCT b.builder_name, ', ') 
              FROM lead_crm_distribution d 
              JOIN builders b ON d.builder_id = b.builder_id 
              WHERE d.lead_id = l.lead_id) as selected_builders,
-            (SELECT string_agg(b.builder_name, ', ') 
+            (SELECT string_agg(DISTINCT b.builder_name, ', ') 
              FROM lead_crm_distribution d 
              JOIN builders b ON d.builder_id = b.builder_id 
              WHERE d.lead_id = l.lead_id AND d.status = 'SUCCESS') as success_builders,
-            (SELECT string_agg(b.builder_name, ', ') 
+            (SELECT string_agg(DISTINCT b.builder_name, ', ') 
              FROM lead_crm_distribution d 
              JOIN builders b ON d.builder_id = b.builder_id 
              WHERE d.lead_id = l.lead_id AND d.status IN ('FAILED', 'DUPLICATE')) as failed_builders

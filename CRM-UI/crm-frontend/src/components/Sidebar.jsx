@@ -20,7 +20,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout, compact = f
         { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
         { id: 'leads', label: 'Leads Tracker', icon: <People /> },
         { id: 'builders', label: 'Builders Status', icon: <Apartment /> },
-        { id: 'alerts', label: 'Dist. Alerts', icon: <Notifications /> },
+        { id: 'alerts', label: 'Alerts', icon: <Notifications /> },
     ];
 
     return (
@@ -65,11 +65,11 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout, compact = f
                     flexShrink: 0,
                     boxShadow: '0 0 15px rgba(197, 160, 89, 0.3)'
                 }}>
-                    I
+                    C
                 </Box>
                 {!compact && (
                     <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 0.5, fontSize: 17, whiteSpace: 'nowrap' }}>
-                        IRIS CRM
+                        CRM
                     </Typography>
                 )}
             </Box>

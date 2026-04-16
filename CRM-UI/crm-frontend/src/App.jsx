@@ -71,7 +71,7 @@ function App() {
         dashboard: 'Analytics Overview',
         leads: 'Leads Tracker',
         builders: 'Builders Status',
-        alerts: 'Dist. Alerts',
+        alerts: 'Alerts',
     };
 
     const pageContent = (
@@ -162,8 +162,8 @@ function App() {
                             bgcolor: '#c5a059', width: 28, height: 28, borderRadius: 1.5,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontWeight: 900, color: '#0f172a', fontSize: 13
-                        }}>I</Box>
-                        <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 800, letterSpacing: 0.5 }}>IRIS CRM</Typography>
+                        }}>C</Box>
+                        <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 800, letterSpacing: 0.5 }}>CRM</Typography>
                     </Box>
                     <IconButton onClick={handleLogout} size="small" sx={{ color: 'rgba(255,255,255,0.5)' }}>
                         <Typography variant="caption" sx={{ fontWeight: 700 }}>SIGN OUT</Typography>
