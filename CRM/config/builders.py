@@ -36,7 +36,6 @@ from src.builders.vr_builder import VRBuilder
 from src.builders.taj_builder import TajBuilder
 from src.builders.voora_builder import VooraBuilder
 from src.builders.navins_builder import NavinsBuilder
-from src.builders.nutech_builder import NutechBuilder
 
 # ── New Builders (ASP.NET WebForms — Playwright UI) ───────────────
 from src.builders.vnr_builder import VNRBuilder

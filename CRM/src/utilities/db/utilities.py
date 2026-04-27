@@ -103,22 +103,11 @@ class DatabaseUtilities:
     def get_matching_builder_configs(self, lead: Lead) -> Dict[str, Any]:
         """
         matches leads to builders/projects using SQL queries.
-        Matches based on location and property type (Villa, Plot, Apartment).
+        matches to all active builders regardless of location.
         """
-        # Safety Guard: If no search criteria are provided, return empty to prevent mass-distribution
-        if not any([lead.location, lead.property_type, lead.project_type, lead.project_name]):
-            print(f"[DB] Safety Guard: Lead {lead.leadsource_id} has no location, type, or project name. Skipping matching.")
-            return {}
-
         conn = self.connect()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                # Prepare lead search terms
-                location = lead.location if lead.location else ""
-                prop_type = lead.property_type if lead.property_type else ""
-                proj_type = lead.project_type if lead.project_type else ""
-                proj_name = lead.project_name if lead.project_name else ""
-                
                 sql = """
                     SELECT 
                         b.builder_id,
@@ -141,28 +130,9 @@ class DatabaseUtilities:
                     WHERE b.is_active = TRUE 
                       AND bp.is_active = TRUE 
                       AND bcc.is_active = TRUE
-                      AND (
-                        
-                          bp.location = '*' OR 
-                          bp.location ILIKE %s OR 
-                          %s ILIKE bp.location OR
-                          bp.location IS NULL
-                      )
-                      AND (
-                         
-                          bp.property_type = '*' OR
-                          bp.property_type ILIKE %s OR 
-                          bp.property_type ILIKE %s OR
-                          bp.project_name ILIKE %s OR 
-                          bp.property_type IS NULL
-                      )
                 """
                 
-                cur.execute(sql, (
-                    f"%{location}%", location, 
-                    f"%{prop_type}%", f"%{proj_type}%", f"%{proj_name}%"
-                ))
-                
+                cur.execute(sql)
                 rows = cur.fetchall()
                 
                 configs = {}
@@ -261,5 +231,30 @@ class DatabaseUtilities:
                     WHERE credential_id = %s AND is_valid = TRUE
                 """, (credential_id,))
                 return cur.fetchone()
+        finally:
+            self.release(conn)
+    def get_all_active_builders(self) -> List[Dict[str, Any]]:
+        """
+        Fetches all active builders and their credentials for broadcast distribution.
+        """
+        conn = self.connect()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                sql = """
+                    SELECT 
+                        b.builder_id,
+                        b.builder_name,
+                        b.crm_type,
+                        bcc.credential_id,
+                        bcc.crm_url as submit_url,
+                        bcc.username,
+                        bcc.delivery_target,
+                        bcc.extra_config
+                    FROM builders b
+                    JOIN builder_crm_credentials bcc ON b.builder_id = bcc.builder_id
+                    WHERE b.is_active = TRUE AND bcc.is_active = TRUE
+                """
+                cur.execute(sql)
+                return cur.fetchall()
         finally:
             self.release(conn)
