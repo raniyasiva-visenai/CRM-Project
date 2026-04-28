@@ -45,8 +45,8 @@ class DatabaseUtilities:
         update_clause = ", ".join([f"{col} = EXCLUDED.{col}" for col in columns if col not in ['lead_id', 'leadsource_id']])
         
         sql = f"""
-            INSERT INTO leads ({', '.join(columns)}) 
-            VALUES ({', '.join(['%s'] * len(columns))})
+            INSERT INTO leads (lead_id, {', '.join(columns)}) 
+            VALUES (DEFAULT, {', '.join(['%s'] * len(columns))})
             ON CONFLICT (leadsource_id) DO UPDATE SET
                 {update_clause},
                 updated_at = NOW()
@@ -85,8 +85,8 @@ class DatabaseUtilities:
             with conn.cursor() as cur:
                 cur.execute("""
                     INSERT INTO lead_crm_distribution (
-                        lead_id, builder_id, crm_type, status, crm_response, crm_lead_id, attempt_count, is_duplicate, submitted_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                        distribution_id, lead_id, builder_id, crm_type, status, crm_response, crm_lead_id, attempt_count, is_duplicate, submitted_at
+                    ) VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
                 """, (
                     lead_id, builder_id, crm_type, status, 
                     json.dumps(response_data) if response_data else None,
@@ -113,6 +113,7 @@ class DatabaseUtilities:
                         b.builder_id,
                         b.builder_name,
                         b.crm_type,
+                        b.is_login,
                         bp.project_name,
                         bp.crm_project_id,
                         bp.location,
@@ -121,15 +122,14 @@ class DatabaseUtilities:
                         bp.max_budget,
                         bcc.crm_url as submit_url,
                         bcc.username,
+                        bcc.secret_ref,
                         bcc.credential_id,
                         bcc.delivery_target,
                         bcc.extra_config
                     FROM builders b
-                    JOIN builder_projects bp ON b.builder_id = bp.builder_id
+                    LEFT JOIN builder_projects bp ON b.builder_id = bp.builder_id
                     JOIN builder_crm_credentials bcc ON b.builder_id = bcc.builder_id
-                    WHERE b.is_active = TRUE 
-                      AND bp.is_active = TRUE 
-                      AND bcc.is_active = TRUE
+                    WHERE b.is_active = true AND bcc.is_active = true
                 """
                 
                 cur.execute(sql)
@@ -138,7 +138,11 @@ class DatabaseUtilities:
                 configs = {}
                 for row in rows:
                     # Create a unique key for each project implementation
-                    key = f"{row['crm_type'].upper()}_{row['builder_name'].upper().replace(' ', '_')}_{row['project_name'].upper().replace(' ', '_')}"
+                    crm_type = (row['crm_type'] or "unknown").upper()
+                    builder_name = (row['builder_name'] or "unknown").upper().replace(' ', '_')
+                    project_name = (row['project_name'] or "unknown").upper().replace(' ', '_')
+                    
+                    key = f"{crm_type}_{builder_name}_{project_name}"
                     
                     config = dict(row)
                     if row['extra_config']:
@@ -245,9 +249,11 @@ class DatabaseUtilities:
                         b.builder_id,
                         b.builder_name,
                         b.crm_type,
+                        b.is_login,
                         bcc.credential_id,
                         bcc.crm_url as submit_url,
                         bcc.username,
+                        bcc.secret_ref,
                         bcc.delivery_target,
                         bcc.extra_config
                     FROM builders b

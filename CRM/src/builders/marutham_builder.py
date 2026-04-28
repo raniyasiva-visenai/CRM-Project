@@ -1,5 +1,5 @@
 import requests
-from src.builders.base_builder import BaseBuilder
+from src.builders.base import BaseBuilder
 from src.models.lead import Lead
 from typing import Dict, Any
 

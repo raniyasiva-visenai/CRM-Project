@@ -5,20 +5,20 @@ from typing import Dict, Any
 class BaseBuilder(ABC):
     def __init__(self, config: Dict[str, Any], session_manager: Any = None):
         self.config = config
+        self.builder_id = config.get("builder_id")
         self.builder_name = config.get("builder_name")
         self.crm_type = config.get("crm_type")
         self.base_url = config.get("base_url")
         self.session_manager = session_manager
 
-    @abstractmethod
     def submit_lead(self, lead: Lead) -> Dict[str, Any]:
-        """Submit the lead to the builder's CRM."""
-        pass
+        """Default submission method (No-op)"""
+        self.log(f"No submission logic implemented for builder {self.config.get('builder_name')}")
+        return {"success": False, "error": "Not implemented"}
 
-    @abstractmethod
     def validate_session(self) -> bool:
-        """Check if the current session is valid."""
-        pass
+        """Default session validation (Always valid)"""
+        return True
 
     def _get_payload(self, lead: Lead) -> Dict[str, Any]:
         """

@@ -42,8 +42,14 @@ class RadianceBuilder(BaseBuilder):
         return browser, ctx
 
     # ── Login ─────────────────────────────────────────────────────────────────
-    def _login(self, playwright) -> Optional[tuple]:
+    def _login(self, playwright=None) -> Optional[tuple]:
         """Login and capture aura token + context."""
+        if not playwright:
+            if not sync_playwright:
+                return None, None
+            with sync_playwright() as p:
+                return self._login(p)
+
         browser, bctx = self._new_context(playwright)
         page = bctx.new_page()
         captured = {}

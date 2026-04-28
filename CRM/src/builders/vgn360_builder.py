@@ -1,7 +1,7 @@
 import logging
 import asyncio
 from typing import Dict, Any
-from .base_builder import BaseBuilder
+from .base import BaseBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -146,3 +146,10 @@ class VGN360Builder(BaseBuilder):
                 logger.error(f"VGN360 submission error: {str(e)}")
                 await page.screenshot(path=f"vgn360_submit_error_{lead_data.get('phone')}.png")
                 return {"success": False, "status": "ERROR", "message": f"Integration error: {str(e)}"}
+            finally:
+                browser.close()
+
+    def validate_session(self) -> bool:
+        return False
+    def validate_session(self) -> bool:
+        return False

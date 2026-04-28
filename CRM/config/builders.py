@@ -1,4 +1,5 @@
 # ── Existing Builders ─────────────────────────────────────────────
+from src.builders.base import BaseBuilder
 from src.builders.sis_builder import SISBuilder
 from src.builders.sp_builder import SPBuilder
 from src.builders.kg_builder import KGBuilder
@@ -67,8 +68,10 @@ BUILDER_CLASS_MAP = {
 
     # ── SalesRobot ─────────────────────────────────────────────────
     "salesrobot":        SalesRobotBuilder,
-    "urbantree":         UrbantreeBuilder,
-    "praganya":          PraganyaBuilder,
+    "urbantree":         SalesRobotBuilder,
+    "praganya":          SalesRobotBuilder,
+    "rsoft":             SalesRobotBuilder,
+    "rsoft crm (salezrobot)": SalesRobotBuilder,
     "dra":               DRABuilder,
     "iris":              DRABuilder,
 
@@ -84,9 +87,13 @@ BUILDER_CLASS_MAP = {
     "urbando":           UrbandoBuilder,
     "mail":              MailBuilder,
     "whatsapp":          WhatsAppBuilder,
+    "self":              BaseBuilder, # Generic fallback
+    "vgn":               VGN360Builder,
+    "vgn360":            VGN360Builder,
 
     # ── API-based ──────────────────────────────────────────────────
     "bbcl":              BBCLBuilder,
+    "freshworks":        BBCLBuilder,
 
     # ── Playwright UI — previously integrated ─────────────────────
     "dac":               DACBuilder,
@@ -95,7 +102,6 @@ BUILDER_CLASS_MAP = {
     "urbanise":          UrbaniseBuilder,
     "elephantine":       ElephantineBuilder,
     "adityaram":         AdityaramBuilder,
-    "vgn360":            VGN360Builder,
 
     # ── Rails/Sell.do CSRF + fetch — newly integrated ─────────────
     "gt_bharathi":       GTBharathiBuilder,

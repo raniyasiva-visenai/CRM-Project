@@ -1,13 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
-from uuid import UUID, uuid4
 from datetime import datetime
 
 @dataclass
 class Lead:
     leadsource_id: str
     first_name: str
-    lead_id: UUID = field(default_factory=uuid4)
+    lead_id: Optional[str] = None
     last_name: Optional[str] = None
     mobile: str = "0000000000"
     dial_code: str = "+91"
@@ -71,8 +70,7 @@ class Lead:
  
     def to_dict(self):
         """Convert Lead to a dictionary mapping to DB columns."""
-        return {
-            "lead_id":                  str(self.lead_id),
+        res = {
             "leadsource_id":            self.leadsource_id,
             "first_name":               self.first_name,
             "last_name":                self.last_name,
@@ -121,3 +119,6 @@ class Lead:
             "source":                   self.source,
             "raw_payload":              self.raw_payload
         }
+        if self.lead_id:
+            res["lead_id"] = self.lead_id
+        return res
